@@ -14,16 +14,15 @@ function M.open(opts)
 
 	-- Convert to list and sort by count ascending
 	local items = {}
-	for key, meta in pairs(all_keymaps) do
+	for _, meta in pairs(all_keymaps) do
+		local is_lazy = meta.source_file and meta.source_file:match("^lazy:")
+
 		table.insert(items, {
-			text = string.format("%-3s %-20s %5d   %s", meta.mode, meta.lhs, meta.count, meta.desc),
-			key = key,
-			mode = meta.mode,
-			lhs = meta.lhs,
-			count = meta.count,
-			desc = meta.desc or "",
-			file = meta.source_file,
-			line = meta.source_line,
+			text = string.format("%s  %-15s %4d  %s", meta.mode, meta.lhs, meta.count, meta.desc or ""),
+			count = meta.count, -- needed for filter/sort
+			file = not is_lazy and meta.source_file or nil,
+			line = not is_lazy and meta.source_line or nil,
+			lazy_plugin = is_lazy and meta.source_file:gsub("^lazy:", "") or nil,
 		})
 	end
 
@@ -47,12 +46,20 @@ function M.open(opts)
 	snacks.picker.pick({
 		title = opts.filter == "unused" and "Unused Keymaps" or "All Keymaps",
 		items = items,
+		layout = {
+			preset = "select",
+		},
 		format = function(item)
 			return { { item.text } }
 		end,
 		confirm = function(picker, item)
 			picker:close()
-			if item and item.file and item.line then
+			if not item then
+				return
+			end
+			if item.lazy_plugin then
+				vim.notify("[unused.nvim] Key from plugin: " .. item.lazy_plugin, vim.log.levels.INFO)
+			elseif item.file and item.line then
 				vim.cmd("edit " .. vim.fn.fnameescape(item.file))
 				vim.api.nvim_win_set_cursor(0, { item.line, 0 })
 			end

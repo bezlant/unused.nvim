@@ -71,4 +71,43 @@ function M.clear_registry()
 	registry = {}
 end
 
+function M.scan_lazy_keys()
+	local ok, lazy_config = pcall(require, "lazy.core.config")
+	if not ok then
+		return 0
+	end
+
+	local count = 0
+	for plugin_name, plugin in pairs(lazy_config.plugins) do
+		if plugin.keys and type(plugin.keys) == "table" then
+			for _, keyspec in ipairs(plugin.keys) do
+				local lhs = keyspec[1]
+				if lhs then
+					local normalized_lhs = normalize_lhs(lhs)
+					local mode_spec = keyspec.mode or "n"
+					local modes = type(mode_spec) == "table" and mode_spec or { mode_spec }
+
+					for _, m in ipairs(modes) do
+						local key = m .. ":" .. normalized_lhs
+						-- Don't overwrite if already registered by hook
+						if not registry[key] then
+							registry[key] = {
+								lhs = lhs,
+								normalized_lhs = normalized_lhs,
+								mode = m,
+								desc = keyspec.desc or "",
+								source_file = "lazy:" .. plugin_name,
+								source_line = nil,
+							}
+							count = count + 1
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return count
+end
+
 return M

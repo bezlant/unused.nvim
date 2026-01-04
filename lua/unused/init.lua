@@ -20,9 +20,21 @@ function M.setup(opts)
 	-- Start counting
 	counter.start(hook.get_registry())
 
+	local augroup = vim.api.nvim_create_augroup("unused_nvim", { clear = true })
+
+	-- Scan lazy.nvim keys after plugins load
+	vim.api.nvim_create_autocmd("User", {
+		group = augroup,
+		pattern = "VeryLazy",
+		once = true,
+		callback = function()
+			hook.scan_lazy_keys()
+		end,
+	})
+
 	-- Save on exit
 	vim.api.nvim_create_autocmd("VimLeavePre", {
-		group = vim.api.nvim_create_augroup("unused_nvim", { clear = true }),
+		group = augroup,
 		callback = function()
 			storage.save(counter.get_counts())
 		end,
