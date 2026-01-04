@@ -21,8 +21,8 @@ print("PASS: load() returns empty table when file missing")
 
 -- Test 2: Save and load roundtrip
 local test_data = {
-  ["n:<Space>ff"] = 5,
-  ["n:<Space>fg"] = 0,
+	["n:<Space>ff"] = 5,
+	["n:<Space>fg"] = 0,
 }
 storage.save(test_data)
 local loaded = storage.load()

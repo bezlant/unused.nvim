@@ -10,11 +10,11 @@ require("unused").setup({})
 -- Create some test keymaps (these simulate user config keymaps)
 -- Note: In real usage, these would be in the user's config
 vim.keymap.set("n", "<leader>tt", function()
-  print("Test keymap executed!")
+	print("Test keymap executed!")
 end, { desc = "Test keymap" })
 
 vim.keymap.set("n", "<leader>tu", function()
-  print("Unused keymap executed!")
+	print("Unused keymap executed!")
 end, { desc = "Unused keymap" })
 
 print([[

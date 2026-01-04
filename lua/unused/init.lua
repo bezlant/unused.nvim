@@ -7,88 +7,88 @@ local storage = require("unused.storage")
 local initialized = false
 
 function M.setup(opts)
-  opts = opts or {}
+	opts = opts or {}
 
-  if initialized then
-    return
-  end
+	if initialized then
+		return
+	end
 
-  -- Load existing counts from disk
-  local existing_counts = storage.load()
-  counter.set_counts(existing_counts)
+	-- Load existing counts from disk
+	local existing_counts = storage.load()
+	counter.set_counts(existing_counts)
 
-  -- Start counting
-  counter.start(hook.get_registry())
+	-- Start counting
+	counter.start(hook.get_registry())
 
-  -- Save on exit
-  vim.api.nvim_create_autocmd("VimLeavePre", {
-    group = vim.api.nvim_create_augroup("unused_nvim", { clear = true }),
-    callback = function()
-      storage.save(counter.get_counts())
-    end,
-  })
+	-- Save on exit
+	vim.api.nvim_create_autocmd("VimLeavePre", {
+		group = vim.api.nvim_create_augroup("unused_nvim", { clear = true }),
+		callback = function()
+			storage.save(counter.get_counts())
+		end,
+	})
 
-  M._create_commands()
+	M._create_commands()
 
-  initialized = true
+	initialized = true
 end
 
 function M.get_unused()
-  local registry = hook.get_registry()
-  local counts = counter.get_counts()
-  local unused = {}
+	local registry = hook.get_registry()
+	local counts = counter.get_counts()
+	local unused = {}
 
-  for key, meta in pairs(registry) do
-    if not counts[key] or counts[key] == 0 then
-      unused[key] = meta
-    end
-  end
+	for key, meta in pairs(registry) do
+		if not counts[key] or counts[key] == 0 then
+			unused[key] = meta
+		end
+	end
 
-  return unused
+	return unused
 end
 
 function M.get_all()
-  local registry = hook.get_registry()
-  local counts = counter.get_counts()
-  local all = {}
+	local registry = hook.get_registry()
+	local counts = counter.get_counts()
+	local all = {}
 
-  for key, meta in pairs(registry) do
-    all[key] = vim.tbl_extend("force", meta, {
-      count = counts[key] or 0,
-    })
-  end
+	for key, meta in pairs(registry) do
+		all[key] = vim.tbl_extend("force", meta, {
+			count = counts[key] or 0,
+		})
+	end
 
-  return all
+	return all
 end
 
 function M.reset_all()
-  counter.reset_all()
-  storage.save({})
+	counter.reset_all()
+	storage.save({})
 end
 
 function M._create_commands()
-  vim.api.nvim_create_user_command("Unused", function(cmd_opts)
-    local args = cmd_opts.args
+	vim.api.nvim_create_user_command("Unused", function(cmd_opts)
+		local args = cmd_opts.args
 
-    if args == "reset" then
-      M.reset_all()
-      vim.notify("[unused.nvim] All counts reset", vim.log.levels.INFO)
-      return
-    end
+		if args == "reset" then
+			M.reset_all()
+			vim.notify("[unused.nvim] All counts reset", vim.log.levels.INFO)
+			return
+		end
 
-    local picker = require("unused.picker")
-    if args == "unused" then
-      picker.open({ filter = "unused" })
-    else
-      picker.open({})
-    end
-  end, {
-    nargs = "?",
-    complete = function()
-      return { "unused", "reset" }
-    end,
-    desc = "Show keymap usage statistics",
-  })
+		local picker = require("unused.picker")
+		if args == "unused" then
+			picker.open({ filter = "unused" })
+		else
+			picker.open({})
+		end
+	end, {
+		nargs = "?",
+		complete = function()
+			return { "unused", "reset" }
+		end,
+		desc = "Show keymap usage statistics",
+	})
 end
 
 -- Expose for plugin/unused.lua

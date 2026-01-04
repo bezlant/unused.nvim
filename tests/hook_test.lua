@@ -12,15 +12,17 @@ print("PASS: install() replaces vim.keymap.set")
 
 -- Test 2: Keymaps still work after hook
 local called = false
-vim.keymap.set("n", "<Plug>(test-mapping)", function() called = true end, { desc = "Test" })
+vim.keymap.set("n", "<Plug>(test-mapping)", function()
+	called = true
+end, { desc = "Test" })
 -- The mapping should be set (we can't easily test execution in headless)
 local maps = vim.api.nvim_get_keymap("n")
 local found = false
 for _, map in ipairs(maps) do
-  if map.lhs == "<Plug>(test-mapping)" then
-    found = true
-    break
-  end
+	if map.lhs == "<Plug>(test-mapping)" then
+		found = true
+		break
+	end
 end
 assert(found, "keymap should still be created")
 print("PASS: keymaps still work after hook")
