@@ -28,6 +28,8 @@ function M.setup(opts)
     end,
   })
 
+  M._create_commands()
+
   initialized = true
 end
 
@@ -62,6 +64,31 @@ end
 function M.reset_all()
   counter.reset_all()
   storage.save({})
+end
+
+function M._create_commands()
+  vim.api.nvim_create_user_command("Unused", function(cmd_opts)
+    local args = cmd_opts.args
+
+    if args == "reset" then
+      M.reset_all()
+      vim.notify("[unused.nvim] All counts reset", vim.log.levels.INFO)
+      return
+    end
+
+    local picker = require("unused.picker")
+    if args == "unused" then
+      picker.open({ filter = "unused" })
+    else
+      picker.open({})
+    end
+  end, {
+    nargs = "?",
+    complete = function()
+      return { "unused", "reset" }
+    end,
+    desc = "Show keymap usage statistics",
+  })
 end
 
 -- Expose for plugin/unused.lua
