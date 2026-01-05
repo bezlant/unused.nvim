@@ -1,0 +1,44 @@
+*unused.txt*  Track keymap usage in Neovim
+
+UNUSED.NVIM                                              *unused* *unused.nvim*
+
+Track your keymap usage to identify unused keymaps for cleanup.
+
+REQUIREMENTS                                            *unused-requirements*
+
+- Neovim 0.10+
+- snacks.nvim (for picker)
+
+SETUP                                                   *unused-setup*
+>lua
+    {
+      "your-username/unused.nvim",
+      priority = 10000,
+      lazy = false,
+      dependencies = { "folke/snacks.nvim" },
+      config = function()
+        require("unused").setup({})
+      end,
+    }
+<
+
+COMMANDS                                                *unused-commands*
+
+:Unused                 Open picker with all keymaps (sorted by usage)
+:Unused unused          Show only keymaps with zero uses
+:Unused reset           Reset all usage counts
+
+API                                                     *unused-api*
+
+require("unused").get_unused()      Get keymaps with zero uses
+require("unused").get_all()         Get all tracked keymaps with counts
+require("unused").reset_all()       Reset all counts
+
+HOW IT WORKS                                            *unused-how-it-works*
+
+1. Hooks `vim.keymap.set` to capture where keymaps are defined
+2. Uses `vim.on_key` to count usage without modifying behavior
+3. Tracks keymaps from your config and lazy.nvim `keys` specs
+4. Persists counts to `~/.local/share/nvim/unused.json`
+
+vim:tw=78:ts=8:ft=help:norl:
