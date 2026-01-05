@@ -1,5 +1,5 @@
 -- Test: Storage module
--- Run with: nvim --headless -u NONE -c "luafile tests/storage_test.lua" -c "qa!"
+-- Run with: nvim --headless -u NONE --cmd "set rtp^=." -c "luafile tests/storage_test.lua" -c "qa!"
 
 -- Mock vim.fn.stdpath for testing
 local test_file = "/tmp/unused_test.json"

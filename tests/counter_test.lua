@@ -1,5 +1,5 @@
 -- Test: Counter module
--- Run with: nvim --headless -u NONE -c "luafile tests/counter_test.lua" -c "qa!"
+-- Run with: nvim --headless -u NONE --cmd "set rtp^=." -c "luafile tests/counter_test.lua" -c "qa!"
 
 package.loaded["unused.counter"] = nil
 package.loaded["unused.hook"] = nil
