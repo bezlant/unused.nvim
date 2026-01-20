@@ -15,9 +15,7 @@ Track your keymap usage to identify unused keymaps for cleanup.
   "username/unused.nvim",
   priority = 10000,  -- Load before other plugins
   lazy = false,
-  config = function()
-    require("unused").setup({})
-  end,
+  config = true,
 }
 ```
 
