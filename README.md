@@ -5,7 +5,6 @@ Track your keymap usage to identify unused keymaps for cleanup.
 ## Requirements
 
 - Neovim 0.10+
-- [snacks.nvim](https://github.com/folke/snacks.nvim) (for picker UI)
 
 ## Installation
 
@@ -16,7 +15,6 @@ Track your keymap usage to identify unused keymaps for cleanup.
   "username/unused.nvim",
   priority = 10000,  -- Load before other plugins
   lazy = false,
-  dependencies = { "folke/snacks.nvim" },
   config = function()
     require("unused").setup({})
   end,

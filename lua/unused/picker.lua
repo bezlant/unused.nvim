@@ -3,12 +3,6 @@ local M = {}
 function M.open(opts)
 	opts = opts or {}
 
-	local ok, snacks = pcall(require, "snacks")
-	if not ok then
-		vim.notify("[unused.nvim] snacks.nvim is required for picker", vim.log.levels.ERROR)
-		return
-	end
-
 	local unused = require("unused")
 	local all_keymaps = unused.get_all()
 
@@ -43,28 +37,32 @@ function M.open(opts)
 		return
 	end
 
-	snacks.picker.pick({
-		title = opts.filter == "unused" and "Unused Keymaps" or "All Keymaps",
-		items = items,
-		layout = {
-			preset = "select",
-		},
-		format = function(item)
-			return { { item.text } }
-		end,
-		confirm = function(picker, item)
-			picker:close()
-			if not item then
-				return
-			end
-			if item.lazy_plugin then
-				vim.notify("[unused.nvim] Key from plugin: " .. item.lazy_plugin, vim.log.levels.INFO)
-			elseif item.file and item.line then
-				vim.cmd("edit " .. vim.fn.fnameescape(item.file))
-				vim.api.nvim_win_set_cursor(0, { item.line, 0 })
-			end
-		end,
-	})
+	local display_items = {}
+	for _, item in ipairs(items) do
+		table.insert(display_items, item.text)
+	end
+
+	local prompt = (opts.filter == "unused" and "Unused Keymaps" or "All Keymaps") .. " (" .. #items .. ")"
+
+	vim.ui.select(display_items, {
+		prompt = prompt,
+	}, function(_, idx)
+		if not idx then
+			return
+		end
+
+		local item = items[idx]
+		if not item then
+			return
+		end
+
+		if item.lazy_plugin then
+			vim.notify("[unused.nvim] Key from plugin: " .. item.lazy_plugin, vim.log.levels.INFO)
+		elseif item.file and item.line then
+			vim.cmd("edit " .. vim.fn.fnameescape(item.file))
+			vim.api.nvim_win_set_cursor(0, { item.line, 0 })
+		end
+	end)
 end
 
 return M
